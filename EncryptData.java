@@ -11,6 +11,7 @@ public final class EncryptData {
      */
     private EncryptData() {
         //alex suks eggs
+        //fuk u Jme
     }
 
 public static void main(String[] args) {
