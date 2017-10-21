@@ -21,6 +21,14 @@ public final class EncryptData {
 private static void rotateForward(char c, int amount){
     //TODO
 }
+    
+/**
+* Rotate forward, the sequel. 
+* The same thing as above, but with subtraction (backwards).
+*/
+private static void rotateBackward(char c, int amount){
+    //TODO
+}
 
 public static void main(String[] args) {
 
