@@ -18,7 +18,7 @@ public final class EncryptData {
 * "Rotates" the current char a specified amount between 32 and 126 (inclusive),
 * so that it wraps around (ex: 124 + 4 = 33).
 */
-private static void rotateForward(char c, int amount){
+private static char rotateForward(char c, int amount){
     //TODO
 }
     
@@ -26,7 +26,7 @@ private static void rotateForward(char c, int amount){
 * Rotate forward, the sequel. 
 * The same thing as above, but with subtraction (backwards).
 */
-private static void rotateBackward(char c, int amount){
+private static char rotateBackward(char c, int amount){
     //TODO
 }
 
