@@ -1,7 +1,7 @@
 /**
  * Put a short phrase describing the program here.
  *
- * @author Put your name here
+ * @author SAVJ
  *
  */
 public final class EncryptData {
@@ -42,7 +42,7 @@ public final class EncryptData {
     }
     
     /*
-     * Encrypt a String via an array of random integers.
+     * ENCRYPT a String via an array of random integers.
      */
     private static String encryptString(String toEncrypt, int[] randoms) {
         String encrypted = "";
@@ -53,7 +53,7 @@ public final class EncryptData {
     }
 
     /*
-     * Encrypt whole data set
+     * ENCRYPT whole data set
      */
     private static String[] encryptData(String[] message,
             Queue<Integer> randoms) {
@@ -61,7 +61,7 @@ public final class EncryptData {
         //declare variables
         String[] encryptedMessage = new String[message.length];
 
-        //for each element in the message
+        //fore each element in the message
         for (int i = 0; i < message.length; i++) {
 
             //call encryptString
@@ -74,6 +74,41 @@ public final class EncryptData {
 
         //return
         return encryptedMessage;
+    }
+
+    /*
+     * DECRYPT a String via an array of random integers.
+     */
+    private static String decryptString(String toDecrypt, int[] randoms) {
+        String decrypted = "";
+        for (int i = 0; i < toDecrypt.length(); i++) {
+            decrypted += rotateBackward(toDecrypt.charAt(i), randoms[i]);
+        }
+        return decrypted;
+    }
+
+    /*
+     * DECRYPT whole data set
+     */
+    private static String[] decryptData(String[] message,
+            Queue<Integer> randoms) {
+
+        //declare variables
+        String[] decryptedMessage = new String[message.length];
+
+        //fore each element in the message
+        for (int i = 0; i < message.length; i++) {
+
+            //call encryptString
+            int[] subRandoms = new int[message[i].length()];
+            for (int q = 0; q < message[i].length(); q++) {
+                subRandoms[q] = randoms.remove();
+            }
+            decryptedMessage[i] = decryptString(message[i], subRandoms);
+        }
+
+        //return
+        return decryptedMessage;
     }
 
 public static void main(String[] args) {
