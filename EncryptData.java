@@ -61,7 +61,7 @@ public final class EncryptData {
         //declare variables
         String[] encryptedMessage = new String[message.length];
 
-        //fore each element in the message
+        //for each element in the message
         for (int i = 0; i < message.length; i++) {
 
             //call encryptString
