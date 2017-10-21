@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
 /**
@@ -17,6 +19,113 @@ public final class EncryptData {
     private EncryptData() {
         //alex suks eggs
         //fuk u Jme
+    }
+
+    /**
+     * "Rotates" the current char a specified amount between 32 and 126
+     * (inclusive), so that it wraps around (ex: 124 + 4 = 33).
+     */
+    private static char rotateForward(char c, int amount) {
+        int val = c - 32; //adjust bounds
+        val += amount; //encrypt
+        val %= 94; //rebound
+        val += 32; //return to original bounds
+        return (char) val; //return char
+    }
+
+    /**
+     * Rotate forward, the sequel. The same thing as above, but with subtraction
+     * (backwards).
+     */
+    private static char rotateBackward(char c, int amount) {
+        int val = c - 32; //adjust bounds
+        val -= amount; //encrypt
+        if (val < 0) { //rebound
+            val += 94;
+        }
+        val += 32; //return to original bounds
+        return (char) val; //return char
+    }
+
+    /*
+     * ENCRYPT a String via an array of random integers.
+     */
+    private static String encryptString(String toEncrypt, int[] randoms) {
+        String encrypted = "";
+        for (int i = 0; i < toEncrypt.length(); i++) {
+            encrypted += rotateForward(toEncrypt.charAt(i), randoms[i]);
+        }
+        return encrypted;
+    }
+
+    /*
+     * ENCRYPT whole data set
+     */
+    private static ArrayList<String> encryptData(ArrayList<String> message,
+            Queue<Integer> randoms) {
+
+        //declare variables
+        ArrayList<String> encryptedMessage = new ArrayList<String>();
+
+        //fore each element in the message
+        for (int i = 0; i < message.size(); i++) {
+
+            //call encryptString
+            int[] subRandoms = new int[message.get(i).length()];
+            for (int q = 0; q < message.get(i).length(); q++) {
+                subRandoms[q] = randoms.remove();
+            }
+            encryptedMessage.add(encryptString(message.get(i), subRandoms));
+        }
+
+        //return
+        return encryptedMessage;
+    }
+
+    /*
+     * DECRYPT a String via an array of random integers.
+     */
+    private static String decryptString(String toDecrypt, int[] randoms) {
+        String decrypted = "";
+        for (int i = 0; i < toDecrypt.length(); i++) {
+            decrypted += rotateBackward(toDecrypt.charAt(i), randoms[i]);
+        }
+        return decrypted;
+    }
+
+    /*
+     * DECRYPT whole data set
+     */
+    private static ArrayList<String> decryptData(ArrayList<String> message,
+            Queue<Integer> randoms) {
+
+        //declare variables
+        ArrayList<String> decryptedMessage = new ArrayList<String>();
+
+        //fore each element in the message
+        for (int i = 0; i < message.size(); i++) {
+
+            //call encryptString
+            int[] subRandoms = new int[message.get(i).length()];
+            for (int q = 0; q < message.get(i).length(); q++) {
+                subRandoms[q] = randoms.remove();
+            }
+            decryptedMessage.add(decryptString(message.get(i), subRandoms));
+        }
+
+        //return
+        return decryptedMessage;
+    }
+
+    /*
+     * Returns an integer array of input length
+     */
+    private static int[] generateKey(ArrayList<Integer> numbers, int length) {
+        int[] key = new int[length];
+        for (int i = 0; i < length; i++) {
+            key[i] = numbers.remove(numbers.size() - 1);
+        }
+        return key;
     }
 
     /**
@@ -62,51 +171,37 @@ public final class EncryptData {
         return toEncrypt;
     }
 
-    /**
-     * "Rotates" the current char a specified amount between 32 and 126
-     * (inclusive), so that it wraps around (ex: 124 + 4 = 33).
-     */
-    //private static char rotateForward(char c, int amount) {
-    //TODO
-    //}
-
-    /**
-     * Rotate forward, the sequel. The same thing as above, but with subtraction
-     * (backwards).
-     */
-    //private static char rotateBackward(char c, int amount) {
-
-    //}
-
-    //TODO
-    /**
-     * Main method.
-     *
-     * @param args
-     *            the command line arguments
-     * @throws FileNotFoundException
-     */
     public static void main(String[] args) throws FileNotFoundException {
 
-        String filepath1 = "C:\\Users\\Skyter\\Documents\\Eclipse Files 2231\\OsuCseWsTemplate\\workspace\\Encryption\\Test_Encryption_File.txt";
-        File file1 = new File(filepath1);
+        Scanner inputFile = new Scanner(new File("text.txt"));
+        Scanner inputNumbers = new Scanner(new File("numbers.txt"));
 
-        String filepath2 = "C:\\Users\\Skyter\\Documents\\Eclipse Files 2231\\OsuCseWsTemplate\\workspace\\Encryption\\Numbers.txt";
-        File file2 = new File(filepath2);
-
-        Scanner inputFile = new Scanner(file1);
-        Scanner inputNumbers = new Scanner(file2);
-
-        ArrayList<String> toEncrypt = new ArrayList<String>();
+        ArrayList<String> message = new ArrayList<String>();
         ArrayList<Integer> numbers = new ArrayList<Integer>();
 
-        toEncrypt = stringInput(inputFile);
+        message = stringInput(inputFile);
         numbers = integerInput(inputNumbers);
-        System.out.println(numbers);
+
+        int[] key1 = generateKey(numbers, 60);
+        Queue<Integer> key1q = new LinkedList<Integer>();
+        Queue<Integer> key1q2 = new LinkedList<Integer>();
+
+        //populate queue
+        for (int i = 0; i < key1.length; i++) {
+            key1q.add(key1[i]);
+            key1q2.add(key1[i]);
+        }
+
+        //encrypt
+        ArrayList<String> encrypted = encryptData(message, key1q);
+        System.out.println(encrypted);
+
+        //decrypt
+        ArrayList<String> decrypted = decryptData(encrypted, key1q2);
+        System.out.println(decrypted);
 
         inputFile.close();
         inputNumbers.close();
 
     }
-
 }
