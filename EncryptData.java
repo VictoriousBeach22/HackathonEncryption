@@ -20,9 +20,11 @@ public final class EncryptData {
 */
 private static char rotateForward(char c, int amount){
     //TODO
-    
-    //array containing the values
-    
+        int val = c - 32; //adjust bounds
+        val += amount; //encrypt
+        val %= 94; //rebound
+        val += 32; //return to original bounds
+        return (char) val; //return char    
 }
     
 /**
@@ -30,7 +32,13 @@ private static char rotateForward(char c, int amount){
 * The same thing as above, but with subtraction (backwards).
 */
 private static char rotateBackward(char c, int amount){
-    //TODO
+        int val = c - 32; //adjust bounds
+        val -= amount; //encrypt
+        if (val < 0) { //rebound
+            val += 94;
+        }
+        val += 32; //return to original bounds
+        return (char) val; //return char
 }
 
 public static void main(String[] args) {
