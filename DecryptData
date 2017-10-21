@@ -76,18 +76,6 @@ public final class DecryptData {
         return decryptedMessage;
     }
 
-    /*
-     * Returns an integer array of input length
-     */
-    private static ArrayList<Integer> generateKey(ArrayList<Integer> numbers,
-            int length) {
-        ArrayList<Integer> key = new ArrayList<Integer>();
-        for (int i = 0; i < length; i++) {
-            key.add(numbers.remove(numbers.size() - 1));
-        }
-        return key;
-    }
-
     /**
      * Read input data into an array of strings, where each element is one line
      * of the input text
