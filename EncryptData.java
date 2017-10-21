@@ -20,6 +20,9 @@ public final class EncryptData {
 */
 private static char rotateForward(char c, int amount){
     //TODO
+    
+    //array containing the values
+    
 }
     
 /**
