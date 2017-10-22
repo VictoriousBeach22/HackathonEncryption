@@ -1,8 +1,11 @@
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -23,8 +26,6 @@ public final class EncryptData {
      * Private constructor so this utility class cannot be instantiated.
      */
     private EncryptData() {
-        //alex suks eggs
-        //fuk u Jme
     }
 
     /**
@@ -35,20 +36,6 @@ public final class EncryptData {
         int val = c - 32; //adjust bounds
         val += amount; //encrypt
         val %= 94; //rebound
-        val += 32; //return to original bounds
-        return (char) val; //return char
-    }
-
-    /**
-     * Rotate forward, the sequel. The same thing as above, but with subtraction
-     * (backwards).
-     */
-    private static char rotateBackward(char c, int amount) {
-        int val = c - 32; //adjust bounds
-        val -= amount; //encrypt
-        if (val < 0) { //rebound
-            val += 94;
-        }
         val += 32; //return to original bounds
         return (char) val; //return char
     }
@@ -73,7 +60,7 @@ public final class EncryptData {
         //declare variables
         ArrayList<String> encryptedMessage = new ArrayList<String>();
 
-        //fore each element in the message
+        //for each element in the message
         for (int i = 0; i < message.size(); i++) {
 
             //call encryptString
@@ -91,14 +78,41 @@ public final class EncryptData {
     /*
      * Returns an integer array of input length
      */
-    private static ArrayList<Integer> generateKey(ArrayList<Integer> numbers,
-            ArrayList<String> message) {
+    private static ArrayList<Integer> generateKey(ArrayList<String> message)
+            throws IOException {
         ArrayList<Integer> key = new ArrayList<Integer>();
+        //ArrayList<Integer> subKey = new ArrayList<Integer>();
+
+        //calculate size
+        int messageLength = 0;
         for (int i = 0; i < message.size(); i++) {
-            for (int j = 0; j < message.get(i).length(); j++) {
-                key.add(numbers.remove(numbers.size() - 1));
-            }
+            messageLength += message.get(i).length();
         }
+
+        //fetch random numbers equivalent to message length
+        key = getNums(messageLength);
+
+        //        //check how many times to fetch the max
+        //        int timesToFetchMax = 0;
+        //        while (messageLength > 9990) {
+        //            messageLength -= 9990;
+        //            timesToFetchMax++;
+        //        }
+        //
+        //        //fetch the max that amount of times
+        //        for (int i = 0; i < timesToFetchMax; i++) {
+        //            subKey = getNums(9990);
+        //            for (int j = 0; j < subKey.size(); j++) {
+        //                key.add(subKey.get(j));
+        //            }
+        //        }
+        //
+        //        //fetch the remaining numbers
+        //        subKey = getNums(messageLength);
+        //        for (int j = 0; j < subKey.size(); j++) {
+        //            key.add(subKey.get(j));
+        //        }
+
         return key;
     }
 
@@ -160,18 +174,91 @@ public final class EncryptData {
 
     public static int askForKeyNum() {
         String[] choices = { "1", "2", "3" };
-        int input = Integer.parseInt(
-                (String) JOptionPane.showInputDialog(null, "Total Keys:",
-                        "Select number of keys:", JOptionPane.QUESTION_MESSAGE,
-                        new ImageIcon("programData/client.png"), // Use
-                        // default
-                        // icon
-                        choices, // Array of choices
-                        choices[0])); // Initial choice
+        int input = Integer.parseInt((String) JOptionPane.showInputDialog(null,
+                "Total keys:", "ENCRYPT", JOptionPane.QUESTION_MESSAGE,
+                new ImageIcon("programData/client.png"), // Use
+                // default
+                // icon
+                choices, // Array of choices
+                choices[0])); // Initial choice
         return input;
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
+    /**
+     * Pull the given amount of random numbers from the random number website in
+     * html and saves it to a text file that will be used for the random numbers
+     */
+    private static ArrayList<String> pullRandNumbershtml(int n)
+            throws IOException {
+        //INCREMENT THE AMOUNT OF RAND NUMBERS BY 1 TO MAKE IT EASIER
+        int total = n + 1;
+
+        //CONNECTS TO THE RANDOM NUMBER WEBSITE AND GENERATES THE GIVEN NUMBER OF VALUES
+        URL url = new URL("https://www.random.org/integers/?num=" + total
+                + "&min=0&max=93&col=1&base=10&format=html&rnd=new");
+        URLConnection con = url.openConnection();
+        InputStream is = con.getInputStream();
+        Scanner numbers = new Scanner(new InputStreamReader(is));
+        ArrayList<String> numberhtml = new ArrayList<>();
+        String number = numbers.nextLine();
+
+        //CREATE AN ARRAY LIST OF THE WEBSITE HTML LINE BY LINE
+        while (numbers.hasNextLine()) {
+            if (number != null) {
+                numberhtml.add(number);
+            }
+            number = numbers.nextLine();
+        }
+
+        //CLOSE THE SCANNER
+        numbers.close();
+
+        //RETURN THE STRING ARRAYLIST OF THE WEBSITE HTML
+        return numberhtml;
+    }
+
+    /**
+     * Parse only the numbers from the array list created of the random number
+     * website's html
+     */
+    private static ArrayList<Integer> randNumberList(
+            ArrayList<String> numberhtml) {
+
+        //CREATE AN EMPTY INTEGER ARRAYLIST
+        ArrayList<Integer> randomNumber = new ArrayList<>();
+
+        //INITIALIZE VALUES
+        int number = 0;
+        int count = 142;
+        boolean numbersExist = true;
+
+        //WHILE THE STRING VALUE IS AN INTEGER CONVERT IT AND ADD IT TO AN INTEGER ARRAY LIST
+        while (numbersExist) {
+            number = Integer.parseInt(numberhtml.get(count));
+            randomNumber.add(number);
+            count++;
+
+            //IF IT REACHES INTO THE END ATTRIBUTE STOP
+            if (numberhtml.get(count).equals("</pre>")) {
+                numbersExist = false;
+            }
+        }
+
+        //RETURN THE INTEGER ARRAY OF THE RANDOM NUMBERS GENERATED
+        return randomNumber;
+    }
+
+    public static ArrayList<Integer> getNums(int amount) throws IOException {
+        ArrayList<String> numbershtml = new ArrayList<>();
+        numbershtml = pullRandNumbershtml(amount + 1);
+
+        ArrayList<Integer> randomNumber = new ArrayList<>();
+        randomNumber = randNumberList(numbershtml);
+
+        return randomNumber;
+    }
+
+    public static void main(String[] args) throws IOException {
 
         //test gui
         int numKeys = askForKeyNum();
@@ -180,22 +267,22 @@ public final class EncryptData {
         String fileName = JOptionPane.showInputDialog("File to encrypt:");
 
         Scanner inputFile = new Scanner(new File("File/" + fileName));
-        Scanner inputNumbers = new Scanner(new File("Random/numbers.txt"));
+        //Scanner inputNumbers = new Scanner(new File("Random/numbers.txt"));
 
         ArrayList<String> message = new ArrayList<String>();
         ArrayList<Integer> numbers = new ArrayList<Integer>();
 
         message = stringInput(inputFile);
-        numbers = integerInput(inputNumbers);
+        //numbers = integerInput(inputNumbers);
 
         //generate keys
-        ArrayList<Integer> key1 = generateKey(numbers, message);
+        ArrayList<Integer> key1 = generateKey(message);
         ArrayList<Integer> key2 = new ArrayList<Integer>();
         ArrayList<Integer> key3 = new ArrayList<Integer>();
         if (numKeys > 1) {
-            key2 = generateKey(numbers, message);
+            key2 = generateKey(message);
             if (numKeys > 2) {
-                key3 = generateKey(numbers, message);
+                key3 = generateKey(message);
             }
         }
 
@@ -247,7 +334,5 @@ public final class EncryptData {
         }
 
         inputFile.close();
-        inputNumbers.close();
-
     }
 }
